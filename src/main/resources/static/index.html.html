@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0"/>
+  <title>SAP UI5 Generator</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: #003052;
+      color: white;
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sap-badge {
+      background: #f0ab00;
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .top-title { font-size: 15px; font-weight: 600; }
+    .top-subtitle { font-size: 11px; opacity: 0.7; }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Model selector in top bar */
+    .model-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .model-selector label {
+      font-size: 11px;
+      opacity: 0.8;
+      white-space: nowrap;
+    }
+
+    .model-selector select {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .model-selector select option {
+      background: #003052;
+      color: white;
+    }
+
+    .model-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .model-badge.llama {
+      background: #76b900;
+      color: #000;
+    }
+
+    .model-badge.gemini {
+      background: #4285f4;
+      color: white;
+    }
+
+    .powered-dot {
+      width: 7px; height: 7px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100%{opacity:1} 50%{opacity:0.3}
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      gap: 1px;
+      background: #dde0e5;
+    }
+
+    /* ── LEFT PANEL ── */
+    .chat-panel {
+      width: 360px;
+      min-width: 360px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e8eaed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafafa;
+    }
+
+    .chat-panel-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .msg-count {
+      font-size: 11px;
+      color: #888;
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .chat-history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-history::-webkit-scrollbar{width:4px}
+    .chat-history::-webkit-scrollbar-thumb{
+      background:#ddd;border-radius:4px}
+
+    .msg-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .msg-wrapper.user { align-items: flex-end; }
+    .msg-wrapper.ai   { align-items: flex-start; }
+
+    .msg-time {
+      font-size: 10px;
+      color: #aaa;
+      padding: 0 4px;
+    }
+
+    .msg {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 88%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from{opacity:0;transform:translateY(6px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .msg-user {
+      background: #003052;
+      color: white;
+      border-radius: 12px 12px 2px 12px;
+    }
+
+    .msg-ai {
+      background: #f0f4ff;
+      color: #1a1a2e;
+      border-radius: 12px 12px 12px 2px;
+      border: 1px solid #e0e8ff;
+    }
+
+    .msg-loading {
+      background: #f5f5f5;
+      color: #888;
+      border-radius: 12px;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dots span {
+      display: inline-block;
+      width: 5px; height: 5px;
+      background: #888;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .dots span:nth-child(2){animation-delay:.2s}
+    .dots span:nth-child(3){animation-delay:.4s}
+
+    @keyframes bounce {
+      0%,60%,100%{transform:translateY(0)}
+      30%{transform:translateY(-5px)}
+    }
+
+    /* ── INPUT AREA ── */
+    .chat-input-area {
+      padding: 12px;
+      border-top: 1px solid #e8eaed;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #fafafa;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid #c8d4e8;
+      background: white;
+      cursor: pointer;
+      color: #003052;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      background: #003052;
+      color: white;
+      border-color: #003052;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .input-wrapper textarea {
+      width: 100%;
+      padding: 10px 12px 24px;
+      border: 1.5px solid #dde0e5;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+      resize: none;
+      height: 80px;
+      font-family: inherit;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper textarea:focus {
+      border-color: #003052;
+    }
+
+    .char-count {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      font-size: 10px;
+      color: #bbb;
+    }
+
+    /* ── MODE TOGGLE ── */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: #f0f4ff;
+      border-radius: 8px;
+      border: 1px solid #c8d4e8;
+    }
+
+    .mode-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #003052;
+      min-width: 80px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #ccc;
+      border-radius: 20px;
+      transition: 0.2s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 14px; width: 14px;
+      left: 3px; bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .toggle-switch input:checked
+      + .toggle-slider {
+      background: #003052;
+    }
+
+    .toggle-switch input:checked
+      + .toggle-slider:before {
+      transform: translateX(16px);
+    }
+
+    .send-btn {
+      width: 100%;
+      padding: 10px;
+      background: #003052;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .send-btn:hover {
+      background: #004a7c;
+      transform: translateY(-1px);
+    }
+
+    .send-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .preview-panel {
+      flex: 1;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-bar {
+      padding: 10px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #e8eaed;
+      font-size: 12px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .preview-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #ddd;
+      flex-shrink: 0;
+    }
+
+    .preview-dot.active {
+      background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+    }
+
+    .tab-buttons {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+      background: #e8eaed;
+      padding: 3px;
+      border-radius: 8px;
+    }
+
+    .tab-btn {
+      padding: 5px 14px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: #003052;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    /* ── PLACEHOLDER ── */
+    .preview-placeholder {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      font-size: 14px;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8f9fb;
+    }
+
+    /* ── IFRAME ── */
+    .preview-container {
+      flex: 1;
+      display: none;
+      position: relative;
+    }
+
+    .preview-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    /* ── CODE VIEW ── */
+    .code-view-wrapper {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .file-tabs-bar {
+      display: none;
+      background: #252535;
+      padding: 6px 12px;
+      gap: 4px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #444;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .file-tabs-left {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .file-tab-btn {
+      padding: 4px 12px;
+      font-size: 11px;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background: transparent;
+      color: #888;
+      cursor: pointer;
+      font-family: monospace;
+      transition: all 0.15s;
+    }
+
+    .file-tab-btn:hover {
+      background: #3d3d55;
+      color: #ccc;
+    }
+
+    .file-tab-btn.active-file {
+      background: #003052;
+      color: white;
+      border-color: #0066a2;
+    }
+
+    .code-toolbar {
+      background: #2d2d3f;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid #444;
+    }
+
+    .code-label {
+      font-size: 11px;
+      color: #888;
+      font-family: monospace;
+    }
+
+    .copy-btn {
+      padding: 4px 14px;
+      font-size: 11px;
+      background: #333;
+      color: #ccc;
+      border: 1px solid #555;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover { background:#555; color:white; }
+
+    textarea#codeView {
+      flex: 1;
+      width: 100%;
+      border: none;
+      padding: 16px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      resize: none;
+      outline: none;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    /* Structuring overlay */
+    .structuring-overlay {
+      display: none;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(30,30,46,0.96);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      color: #aaa;
+      font-size: 13px;
+      z-index: 10;
+    }
+
+    .structuring-spinner {
+      width: 30px; height: 30px;
+      border: 3px solid #333;
+      border-top: 3px solid #0066a2;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to{transform:rotate(360deg)} }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="sap-badge">SAP</div>
+      <div>
+        <div class="top-title">UI5 Generator</div>
+        <div class="top-subtitle">
+          AI-powered Fiori page builder
+        </div>
+      </div>
+    </div>
+
+    <div class="top-bar-right">
+      <!-- Model selector -->
+      <div class="model-selector">
+        <label>Model:</label>
+        <select id="modelSelect"
+          onchange="updateModelBadge()">
+          <option value="llama">
+            Llama 3.1 405B
+          </option>
+          <option value="gemini">
+            Gemini 2.0 Flash
+          </option>
+        </select>
+      </div>
+      <span class="model-badge llama"
+            id="modelBadge">
+        NVIDIA NIM
+      </span>
+      <div class="powered-dot"></div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ═══ LEFT PANEL ═══ -->
+    <div class="chat-panel">
+      <div class="chat-panel-header">
+        <span class="chat-panel-title">Prompt</span>
+        <span class="msg-count" id="msgCount">
+          0 messages
+        </span>
+      </div>
+
+      <div class="chat-history" id="chatHistory">
+        <div class="msg-wrapper ai">
+          <div class="msg msg-ai">
+            Hello! Describe the SAP UI5 page you want.
+            Select your AI model above and I will
+            generate a live Fiori preview with full
+            project structure.
+          </div>
+          <div class="msg-time">Just now</div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="suggestions">
+          <span class="chip"
+            onclick="fillPrompt('Bill management table with bill number, vendor name, amount and payment status columns with search bar on top and filter button')">
+            Bill table
+          </span>
+          <span class="chip"
+            onclick="fillPrompt('Invoice entry form with vendor name, amount, due date inputs and submit button. On submit show MessageToast and open confirmation Dialog')">
+            Invoice form
+          </span>
+          <span class="chip"
+            onclick="fillPrompt('Sales dashboard page with sap.m.Bar as customHeader showing title Sales Dashboard and Avatar KV on right. Add 4 GenericTiles in FlexBox for Revenue, Orders, Customers, Returns. Below add recent orders Table with 5 sample rows Name Age City. Never use ShellBar.')">
+            Dashboard
+          </span>
+          <span class="chip"
+            onclick="fillPrompt('Vendor list page with search bar, filter button and table showing vendor id, name, country and status columns with 5 sample rows')">
+            Vendor list
+          </span>
+          <span class="chip"
+            onclick="fillPrompt('Purchase order page with header section showing PO number, date, vendor fields and line items table with material, quantity, price and total columns with 4 sample rows')">
+            PO page
+          </span>
+        </div>
+
+        <div class="input-wrapper">
+          <textarea
+            id="promptInput"
+            placeholder="Describe your SAP UI5 page..."
+            oninput="updateCharCount()"
+            onkeydown="handleKey(event)"
+            maxlength="1000">
+          </textarea>
+          <span class="char-count" id="charCount">
+            0 / 1000
+          </span>
+        </div>
+
+        <!--
+          MODE TOGGLE
+          Default = New Page (toggle OFF)
+          Modify Current = toggle ON
+          Resets to New Page after every generation
+        -->
+        <div class="mode-toggle">
+          <span class="mode-label" id="modeLabel">
+            🆕 New Page
+          </span>
+          <label class="toggle-switch">
+            <input type="checkbox"
+              id="modifyToggle"
+              onchange="updateModeLabel()">
+            <span class="toggle-slider"></span>
+          </label>
+          <span style="font-size:11px;color:#666;">
+            Modify Current
+          </span>
+        </div>
+
+        <button class="send-btn" id="sendBtn"
+          onclick="sendPrompt()">
+          Generate UI5 Page
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ RIGHT PANEL ═══ -->
+    <div class="preview-panel">
+
+      <div class="preview-bar">
+        <div class="preview-dot" id="previewDot">
+        </div>
+        <span id="previewStatus">
+          Waiting for prompt
+        </span>
+        <div class="tab-buttons">
+          <button class="tab-btn active"
+            id="btnPreview"
+            onclick="showTab('preview')">
+            ▶ Showtime
+          </button>
+          <button class="tab-btn"
+            id="btnCode"
+            onclick="showTab('code')">
+            { } Reveal the Script
+          </button>
+        </div>
+      </div>
+
+      <!-- Placeholder -->
+      <div class="preview-placeholder"
+           id="previewPlaceholder">
+        <div style="font-size:40px;opacity:0.15;">
+          ◻
+        </div>
+        <div>Your SAP UI5 preview will appear here
+        </div>
+        <div style="font-size:12px;color:#ccc;
+                    margin-top:4px;">
+          Select a model, type a prompt and generate
+        </div>
+      </div>
+
+      <!--
+        iframe uses srcdoc
+        No sandbox — needed for OpenUI5 CDN
+      -->
+      <div class="preview-container"
+           id="previewContainer">
+        <iframe
+          id="previewFrame"
+          title="SAP UI5 Live Preview">
+        </iframe>
+      </div>
+
+      <!-- Code view -->
+      <div class="code-view-wrapper"
+           id="codeViewWrapper">
+
+        <!-- File tabs — shown after files loaded -->
+        <div class="file-tabs-bar" id="fileTabsBar">
+          <div class="file-tabs-left">
+            <button class="file-tab-btn"
+              data-file="view"
+              onclick="showFileTab('view')">
+              App.view.xml
+            </button>
+            <button class="file-tab-btn"
+              data-file="controller"
+              onclick="showFileTab('controller')">
+              App.controller.js
+            </button>
+            <button class="file-tab-btn"
+              data-file="manifest"
+              onclick="showFileTab('manifest')">
+              manifest.json
+            </button>
+            <button class="file-tab-btn"
+              data-file="component"
+              onclick="showFileTab('component')">
+              Component.js
+            </button>
+            <button class="file-tab-btn"
+              data-file="index"
+              onclick="showFileTab('index')">
+              index.html
+            </button>
+          </div>
+          <button class="copy-btn" id="fileCopyBtn">
+            Copy file
+          </button>
+        </div>
+
+        <!-- Toolbar shown before files load -->
+        <div class="code-toolbar" id="codeToolbar">
+          <span class="code-label" id="codeLabel">
+            Generated HTML
+          </span>
+          <button class="copy-btn" id="copyBtn"
+            onclick="copyCode()">
+            Copy code
+          </button>
+        </div>
+
+        <!-- Overlay during structure generation -->
+        <div class="structuring-overlay"
+             id="structuringOverlay">
+          <div class="structuring-spinner"></div>
+          <div>Generating project structure...</div>
+          <div style="font-size:11px;color:#555;
+                      margin-top:4px;">
+            Converting to 5 structured files
+          </div>
+        </div>
+
+        <textarea id="codeView"
+          readonly spellcheck="false">
+        </textarea>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Relative URL — works on localhost AND deployed
+    const BACKEND = "";
+
+    let currentHtml     = "";
+    let structuredFiles = null;
+    let currentFileTab  = "view";
+    let isStructuring   = false;
+    let msgCount        = 0;
+
+    // ── Model badge update ────────────────────────
+
+    function updateModelBadge() {
+      const model = document.getElementById(
+        "modelSelect").value;
+      const badge =
+        document.getElementById("modelBadge");
+
+      if (model === "gemini") {
+        badge.textContent = "Google AI";
+        badge.className = "model-badge gemini";
+      } else {
+        badge.textContent = "NVIDIA NIM";
+        badge.className = "model-badge llama";
+      }
+    }
+
+    // ── Utility ──────────────────────────────────
+
+    function updateCharCount() {
+      const val = document.getElementById(
+        "promptInput").value.length;
+      const el = document.getElementById("charCount");
+      el.textContent = val + " / 1000";
+      el.style.color = val > 900 ? "#e74c3c" : "#bbb";
+    }
+
+    function handleKey(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendPrompt();
+      }
+    }
+
+    function fillPrompt(text) {
+      document.getElementById(
+        "promptInput").value = text;
+      document.getElementById("promptInput").focus();
+      updateCharCount();
+    }
+
+    function getTime() {
+      return new Date().toLocaleTimeString([], {
+        hour: "2-digit", minute: "2-digit"
+      });
+    }
+
+    function setStatus(active, text) {
+      document.getElementById(
+        "previewDot").className =
+        "preview-dot" + (active ? " active" : "");
+      document.getElementById(
+        "previewStatus").textContent = text;
+    }
+
+    // ── Toggle — bulletproof ─────────────────────
+    // Default is always New Page (OFF)
+    // Only sends previousHtml when toggle is ON
+    // Resets to New Page after every generation
+
+    function updateModeLabel() {
+      const isModify = document.getElementById(
+        "modifyToggle").checked;
+      document.getElementById("modeLabel")
+        .textContent =
+        isModify ? "✏️ Modifying" : "🆕 New Page";
+    }
+
+    function resetToggle() {
+      document.getElementById(
+        "modifyToggle").checked = false;
+      updateModeLabel();
+    }
+
+    // ── Chat messages ────────────────────────────
+
+    function addMessage(text, type) {
+      const history =
+        document.getElementById("chatHistory");
+      const wrapper = document.createElement("div");
+      wrapper.className = "msg-wrapper " +
+        (type === "user" ? "user" : "ai");
+
+      const msg = document.createElement("div");
+      msg.className = "msg msg-" +
+        (type === "loading" ? "loading" : type);
+
+      if (type === "loading") {
+        msg.innerHTML = text +
+          ' <div class="dots"><span></span>' +
+          '<span></span><span></span></div>';
+      } else {
+        msg.textContent = text;
+      }
+
+      const time = document.createElement("div");
+      time.className = "msg-time";
+      time.textContent = getTime();
+
+      wrapper.appendChild(msg);
+      wrapper.appendChild(time);
+      history.appendChild(wrapper);
+      history.scrollTop = history.scrollHeight;
+
+      if (type !== "loading") {
+        msgCount++;
+        document.getElementById("msgCount")
+          .textContent = msgCount + " message" +
+          (msgCount !== 1 ? "s" : "");
+      }
+      return wrapper;
+    }
+
+    // ── Preview using srcdoc ─────────────────────
+
+    function loadPreview(html) {
+      const container = document.getElementById(
+        "previewContainer");
+      const placeholder = document.getElementById(
+        "previewPlaceholder");
+
+      placeholder.style.display = "none";
+      container.style.display = "block";
+
+      const frame =
+        document.getElementById("previewFrame");
+      frame.srcdoc = html;
+    }
+
+    // ── Reset code view state ────────────────────
+
+    function resetCodeView() {
+      document.getElementById("fileTabsBar")
+        .style.display = "none";
+      document.getElementById("codeToolbar")
+        .style.display = "flex";
+      document.getElementById("codeLabel")
+        .textContent = "Generated HTML";
+      document.getElementById("codeView")
+        .value = "";
+      document.getElementById("structuringOverlay")
+        .style.display = "none";
+    }
+
+    // ── Tab switching ────────────────────────────
+
+    function showTab(tab) {
+      const container = document.getElementById(
+        "previewContainer");
+      const codeWrapper = document.getElementById(
+        "codeViewWrapper");
+      const placeholder = document.getElementById(
+        "previewPlaceholder");
+      const btnP =
+        document.getElementById("btnPreview");
+      const btnC =
+        document.getElementById("btnCode");
+
+      if (tab === "preview") {
+        if (currentHtml) {
+          placeholder.style.display = "none";
+          container.style.display = "block";
+          codeWrapper.style.display = "none";
+        } else {
+          placeholder.style.display = "flex";
+          container.style.display = "none";
+          codeWrapper.style.display = "none";
+        }
+        btnP.classList.add("active");
+        btnC.classList.remove("active");
+
+      } else {
+        // Code tab
+        placeholder.style.display = "none";
+        container.style.display = "none";
+        codeWrapper.style.display = "flex";
+        btnC.classList.add("active");
+        btnP.classList.remove("active");
+
+        if (!currentHtml) {
+          document.getElementById("codeView")
+            .value = "Generate a UI5 page first.";
+          return;
+        }
+
+        if (structuredFiles) {
+          document.getElementById("fileTabsBar")
+              .style.display = "flex";
+          document.getElementById("codeToolbar")
+              .style.display = "none";
+          showFileTab(currentFileTab);
+        } else {
+          // Show raw HTML first
+          document.getElementById("codeToolbar")
+            .style.display = "flex";
+          document.getElementById("fileTabsBar")
+            .style.display = "none";
+          document.getElementById("codeLabel")
+            .textContent = "Generated HTML";
+          document.getElementById("codeView")
+            .value = currentHtml;
+
+          // Auto start structure loading
+          loadStructure();
+        }
+      }
+    }
+
+    // ── Load structure (Llama only) ──────────────
+    // Gemini already has files from /generate
+    // Llama calls /structure lazily here
+
+    async function loadStructure() {
+      if (isStructuring || !currentHtml) return;
+      isStructuring = true;
+
+      const overlay = document.getElementById(
+        "structuringOverlay");
+      overlay.style.display = "flex";
+
+      try {
+        const response = await fetch(
+          BACKEND + "/structure", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            html: currentHtml
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.files) {
+          structuredFiles = data.files;
+          document.getElementById("fileTabsBar")
+            .style.display = "flex";
+          document.getElementById("codeToolbar")
+            .style.display = "none";
+          showFileTab("view");
+        } else {
+          document.getElementById("codeLabel")
+            .textContent =
+            "Structure failed — showing raw HTML";
+        }
+
+      } catch (err) {
+        console.error("Structure error:", err);
+        document.getElementById("codeLabel")
+          .textContent =
+          "Structure failed — showing raw HTML";
+      }
+
+      overlay.style.display = "none";
+      isStructuring = false;
+    }
+
+    // ── Copy code ────────────────────────────────
+
+    function copyCode() {
+      const code =
+        document.getElementById("codeView").value;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn =
+          document.getElementById("copyBtn");
+        btn.textContent = "Copied!";
+        btn.style.background = "#1a4731";
+        btn.style.color = "#9ae6b4";
+        setTimeout(() => {
+          btn.textContent = "Copy code";
+          btn.style.background = "#333";
+          btn.style.color = "#ccc";
+        }, 2000);
+      });
+    }
+
+    // ── Show file tab ────────────────────────────
+
+    function fileToString(content) {
+      if (!content) return "// File not available.";
+      if (typeof content === "object") {
+        return JSON.stringify(content, null, 2);
+      }
+      return content.toString();
+    }
+
+    function showFileTab(fileName) {
+      currentFileTab = fileName;
+
+      const names = {
+        view:       "App.view.xml",
+        controller: "App.controller.js",
+        manifest:   "manifest.json",
+        component:  "Component.js",
+        index:      "index.html"
+      };
+
+      document.querySelectorAll(".file-tab-btn")
+        .forEach(btn => {
+          btn.classList.toggle(
+            "active-file",
+            btn.dataset.file === fileName
+          );
+        });
+
+      const content =
+        fileToString(structuredFiles[fileName]);
+      document.getElementById("codeView").value =
+        content;
+
+      const copyBtn =
+        document.getElementById("fileCopyBtn");
+      copyBtn.textContent =
+        "Copy " + names[fileName];
+      copyBtn.onclick = function() {
+        navigator.clipboard.writeText(content)
+          .then(() => {
+            copyBtn.textContent = "Copied!";
+            copyBtn.style.background = "#1a4731";
+            copyBtn.style.color = "#9ae6b4";
+            setTimeout(() => {
+              copyBtn.textContent =
+                "Copy " + names[fileName];
+              copyBtn.style.background = "#333";
+              copyBtn.style.color = "#ccc";
+            }, 2000);
+          });
+      };
+    }
+
+    // ── GENERATE ─────────────────────────────────
+
+    async function sendPrompt() {
+      const input =
+        document.getElementById("promptInput");
+      const btn =
+        document.getElementById("sendBtn");
+      const prompt = input.value.trim();
+      if (!prompt) return;
+
+      // Read toggle BEFORE resetting anything
+      const isModify = document.getElementById(
+        "modifyToggle").checked;
+
+      // Only use previousHtml if Modify is ON
+      // AND we actually have HTML to modify
+      const previousHtml =
+        (isModify && currentHtml) ? currentHtml : "";
+
+      // Read selected model
+      const selectedModel = document.getElementById(
+        "modelSelect").value;
+
+      // ── Reset ALL state for new generation ──
+      currentHtml = "";
+      structuredFiles = null;
+      currentFileTab = "view";
+      isStructuring = false;
+
+      input.value = "";
+      updateCharCount();
+      btn.disabled = true;
+      btn.textContent = "Generating...";
+
+      resetCodeView();
+
+      addMessage(prompt, "user");
+
+      // Show which model is being used
+      const modelLabel = selectedModel === "gemini"
+        ? "Gemini" : "Llama";
+      const loadingWrapper = addMessage(
+        "Generating with " + modelLabel,
+        "loading"
+      );
+
+      setStatus(false,
+        "Generating with " + modelLabel + "...");
+
+      try {
+        const response = await fetch(
+          BACKEND + "/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+            previousHtml: previousHtml,
+            model: selectedModel
+          })
+        });
+
+        const data = await response.json();
+        loadingWrapper.remove();
+
+        if (!data.success && data.error) {
+          addMessage(
+            "Error: " + data.error, "ai");
+          setStatus(false, "Error");
+          btn.disabled = false;
+          btn.textContent = "Generate UI5 Page";
+          resetToggle();
+          return;
+        }
+
+        currentHtml = data.html;
+
+        // If Gemini — files already available
+        if (data.files && data.files.view) {
+          structuredFiles = data.files;
+          document.getElementById("fileTabsBar")
+            .style.display = "flex";
+          document.getElementById("codeToolbar")
+            .style.display = "none";
+          addMessage(
+            "SAP UI5 page ready! " +
+            "Generated with Gemini in one call. " +
+            "Preview is live. Click " +
+            "Reveal the Script for all 5 files.",
+            "ai"
+          );
+        } else {
+          // Llama — files load lazily on tab click
+          addMessage(
+            "SAP UI5 page ready! " +
+            "Preview is live. Click " +
+            "Reveal the Script to generate " +
+            "all 5 project files.",
+            "ai"
+          );
+        }
+
+        setStatus(true, "Preview running — "
+          + modelLabel);
+
+        // Switch to preview tab
+        document.getElementById("btnPreview")
+          .classList.add("active");
+        document.getElementById("btnCode")
+          .classList.remove("active");
+        document.getElementById("codeViewWrapper")
+          .style.display = "none";
+
+        loadPreview(currentHtml);
+
+      } catch (error) {
+        loadingWrapper.remove();
+        addMessage(
+          "Could not reach backend. " +
+          "Make sure Spring Boot is running " +
+          "on port 8080.",
+          "ai"
+        );
+        setStatus(false, "Connection error");
+        console.error("Fetch error:", error);
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Generate UI5 Page";
+
+      // Always reset toggle to New Page
+      // after every generation — bulletproof
+      resetToggle();
+    }
+  </script>
+</body>
+</html>
