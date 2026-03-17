@@ -200,7 +200,20 @@ public class UI5GeneratorController {
         "JSONModel for table data. " +
         "sap.m.App+Pages for large pages. " +
         "IconTabBar for tabs. " +
-        "MessageToast+Dialog for submit.\n";
+        "MessageToast+Dialog for submit.\n"+
+                "DEPRECATED — NEVER use these:\n" +
+        "- NEVER require 'sap/m/FlexJustifyContent'\n" +
+        "- NEVER require 'sap/m/FlexAlignItems'\n" +
+        "- NEVER require 'sap/m/FlexWrap'\n" +
+        "- NEVER require 'sap/ui/core/TitleLevel'\n" +
+        "- NEVER use class property on GenericTile\n" +
+        "- FlexBox ONLY like this:\n" +
+        "  new sap.m.FlexBox({\n" +
+        "    wrap: 'Wrap',\n" +
+        "    justifyContent: 'Start',\n" +
+        "    alignItems: 'Start',\n" +
+        "    items: [...]\n" +
+        "  })\n";
 
     // ─────────────────────────────────────────────
     // STRUCTURE SYSTEM PROMPT — Llama
