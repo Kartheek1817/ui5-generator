@@ -257,6 +257,12 @@ public class UI5GeneratorController {
         "  data-sap-ui-frameOptions=\"allow\">\n" +
         "</script>\n\n" +
 
+                "STRING RULES:\n" +
+        "- Always use single quotes inside JS strings\n" +
+        "- Never mix single and double quotes in JS\n" +
+        "- Always escape apostrophes as \\' in text\n" +
+        "- Never break a string across lines\n\n" +
+
         "NEVER: ShellBar, GenericTileContent, " +
         "TileContainer, sap/f/GenericTile, " +
         "unit on NumericContent, VerticalBox, " +
